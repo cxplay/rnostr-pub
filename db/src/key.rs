@@ -113,17 +113,18 @@ pub fn encode_replace_key(kind: u16, pubkey: &[u8; 32], tags: &[Vec<String>]) ->
     } else if (30_000..40_000).contains(&kind) {
         let k = u16_to_ver(kind);
         let p: &[u8] = pubkey.as_ref();
-        let tag = tags
-            .get(0)
-            .map(|tag| {
+        // search all tags for the first tag with key == "d"
+        let tag_val = tags
+            .iter()
+            .find_map(|tag| {
                 if tag.len() > 1 && tag[0] == "d" {
-                    tag.get(1).unwrap().clone()
+                    Some(tag[1].clone())
                 } else {
-                    "".to_owned()
+                    None
                 }
             })
             .unwrap_or_default();
-        Some([p, &k[..], tag.as_bytes()].concat())
+        Some([p, &k[..], tag_val.as_bytes()].concat())
     } else {
         None
     }
